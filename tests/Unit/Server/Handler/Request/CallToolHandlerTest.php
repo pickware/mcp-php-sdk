@@ -288,6 +288,7 @@ class CallToolHandlerTest extends TestCase
                 [
                     'tool' => 'test_tool',
                     'arguments' => ['key1' => 'value1', 'key2' => 42, '_session' => $this->session, '_request' => $request],
+                    'exception' => $exception,
                 ],
             );
 
