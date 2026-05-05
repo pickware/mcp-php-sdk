@@ -166,16 +166,18 @@ class CallToolHandlerTest extends TestCase
     public function testHandleToolNotFoundExceptionReturnsError(): void
     {
         $request = $this->createCallToolRequest('nonexistent_tool', ['param' => 'value']);
+        $exception = new ToolNotFoundException('nonexistent_tool');
 
         $this->registry
             ->expects($this->once())
             ->method('getTool')
             ->with('nonexistent_tool')
-            ->willThrowException(new ToolNotFoundException('nonexistent_tool'));
+            ->willThrowException($exception);
 
         $this->logger
             ->expects($this->once())
-            ->method('error');
+            ->method('error')
+            ->with('Tool not found', ['name' => 'nonexistent_tool', 'exception' => $exception]);
 
         $response = $this->handler->handle($request, $this->session);
 
@@ -206,7 +208,15 @@ class CallToolHandlerTest extends TestCase
 
         $this->logger
             ->expects($this->once())
-            ->method('error');
+            ->method('error')
+            ->with(
+                'Error while executing tool "failing_tool": "Tool execution failed".',
+                [
+                    'tool' => 'failing_tool',
+                    'arguments' => ['param' => 'value', '_session' => $this->session, '_request' => $request],
+                    'exception' => $exception,
+                ],
+            );
 
         $response = $this->handler->handle($request, $this->session);
 
